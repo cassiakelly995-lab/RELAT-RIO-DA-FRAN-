@@ -2,73 +2,84 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Painel de Relatório Diário - Cássia Prompt</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Relatório - Cássia Prompt V8</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
-        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
-        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; text-align: center; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #34495e; }
-        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        button:hover { background-color: #219150; }
-        #output { margin-top: 20px; padding: 15px; background: #e8f6f3; border-left: 5px solid #27ae60; white-space: pre-wrap; display: none; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h2 { color: #1a73e8; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
+        .field { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
+        textarea { resize: vertical; }
+        button { background-color: #00a884; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
+        button:hover { background-color: #008f72; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        #preview { margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px dashed #25d366; border-radius: 8px; white-space: pre-wrap; display: none; font-size: 14px; color: #333; }
+        .footer-info { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>📄 Relatório Diário de Atendimento</h2>
+<div class="card">
+    <h2>Relatório Diário</h2>
     
-    <div class="form-group">
-        <label>Data:</label>
-        <input type="date" id="dataRelatorio">
+    <div class="field">
+        <label>Data do Atendimento:</label>
+        <input type="date" id="data">
     </div>
 
-    <div class="form-group">
-        <label>Total de Pessoas Atendidas:</label>
-        <input type="number" id="totalAtendidos" placeholder="Ex: 15">
+    <div class="field">
+        <label>Total de Pessoas:</label>
+        <input type="number" id="total" placeholder="Ex: 15">
     </div>
 
-    <div class="form-group">
-        <label>Advogadas no Plantão:</label>
-        <textarea id="advogadas" rows="3" placeholder="Dra. Nome Sobrenome..."></textarea>
+    <div class="field">
+        <label>Doutoras no Plantão (uma por linha):</label>
+        <textarea id="doutoras" rows="3" placeholder="Dra. Rita de Cássia..."></textarea>
     </div>
 
-    <div class="form-group">
-        <label>Observações/Ocorrências:</label>
-        <textarea id="observacoes" rows="4" placeholder="Ex: O plantão transcorreu de forma organizada..."></textarea>
+    <div class="field">
+        <label>Observações do Dia:</label>
+        <textarea id="obs" rows="4" placeholder="O plantão transcorreu de forma tranquila..."></textarea>
     </div>
 
-    <button onclick="gerarRelatorio()">GERAR RELATÓRIO PARA WHATSAPP</button>
+    <button onclick="gerar()">GERAR E COPIAR RELATÓRIO</button>
 
-    <div id="output"></div>
+    <div id="preview"></div>
+    
+    <div class="footer-info">Cássia Prompt V8 God Mode - Sistema de Apoio</div>
 </div>
 
 <script>
-    function gerarRelatorio() {
-        const dataRaw = document.getElementById('dataRelatorio').value.split('-');
-        const dataFormatada = dataRaw[2] + '/' + dataRaw[1] + '/' + dataRaw[0];
-        const total = document.getElementById('totalAtendidos').value;
-        const advs = document.getElementById('advogadas').value;
-        const obs = document.getElementById('observacoes').value;
-        const responsavel = "Franciane França";
-
-        const textoFinal = `*Relatório Diário – ${dataFormatada}*\n\n` +
-                           `Neste foram atendidas ${total} pessoas.\n\n` +
-                           `${obs}\n\n` +
-                           `Os atendimentos foram realizados pelas doutoras:\n\n` +
-                           `${advs}\n\n` +
-                           `Os atendimentos de sistema e as nomeações foram realizados pela funcionária ${responsavel}.`;
-
-        const outputDiv = document.getElementById('output');
-        outputDiv.innerText = textoFinal;
-        outputDiv.style.display = 'block';
+    function gerar() {
+        const dataVal = document.getElementById('data').value.split('-');
+        if(!dataVal[0]) { alert("Por favor, selecione a data."); return; }
         
-        // Copia automaticamente para a área de transferência
-        navigator.clipboard.writeText(textoFinal);
-        alert("Relatório gerado e copiado para a área de transferência!");
+        const dataFmt = `${dataVal[2]}/${dataVal[1]}/${dataVal[0]}`;
+        const total = document.getElementById('total').value;
+        const doutoras = document.getElementById('doutoras').value;
+        const obs = document.getElementById('obs').value;
+
+        // Montagem do texto idêntica à imagem enviada
+        const texto = `Relatório Diário – ${dataFmt}\n\n` +
+                      `Neste dia foram atendidas ${total} pessoas.\n` +
+                      `${obs}\n\n` +
+                      `Os atendimentos foram realizados pelas doutoras:\n\n` +
+                      `${doutoras}\n\n` +
+                      `Os atendimentos de sistema e as nomeações foram realizados pela funcionária Franciane França.`;
+
+        const p = document.getElementById('preview');
+        p.innerText = texto;
+        p.style.display = 'block';
+
+        // Copia automática
+        navigator.clipboard.writeText(texto).then(() => {
+            alert("✅ Relatório copiado com sucesso! Agora é só colar no WhatsApp.");
+        });
     }
+
+    // Define a data de hoje automaticamente ao abrir
+    document.getElementById('data').valueAsDate = new Date();
 </script>
 
 </body>
