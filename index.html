@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Franciane Prompt V8 - Permanent Storage</title>
+    <title>Franciane Prompt V8 - Security Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #c5a028; --navy: #050b1a; --glass: #ffffff; }
@@ -38,7 +38,7 @@
 <div class="container">
     <div class="header">
         <h1>Franciane Prompt</h1>
-        <span style="color: var(--gold); font-size: 10px; letter-spacing: 3px;">ARQUIVO PERMANENTE - ACESSO RESTRITO</span>
+        <span style="color: var(--gold); font-size: 10px; letter-spacing: 3px;">SISTEMA PROTEGIDO - ADM PASSWORD REQUIRED</span>
     </div>
 
     <div id="form-area">
@@ -61,7 +61,7 @@
     <div id="output" style="display:none; white-space: pre-wrap; padding: 20px; background: #fdfdfd; border: 1px solid #eee; margin-bottom: 20px; font-size: 14px; color: #333; border-left: 5px solid var(--gold);"></div>
 
     <div class="history">
-        <label>📜 Histórico Inviolável</label>
+        <label>📜 Histórico Gravado</label>
         <table>
             <thead>
                 <tr>
@@ -77,7 +77,7 @@
 
 <script>
     const STORAGE_KEY = 'v8_permanent_records';
-    const MASTER_PASS = "fran88"; // SENHA PARA APAGAR
+    const MASTER_PASS = "fran88"; // SENHA DE ADM MANTIDA
 
     function salvarRelatorio() {
         const d = document.getElementById('data').value.split('-');
@@ -98,7 +98,7 @@
         
         atualizarTabela();
         exibirTexto(rel);
-        alert("✅ Relatório gravado no banco de dados e copiado!");
+        alert("✅ Gravado! Use o WhatsApp para colar.");
     }
 
     function exibirTexto(rel) {
@@ -111,7 +111,7 @@
 
     function atualizarTabela() {
         const historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        const html = historico.reverse().map(rel => `
+        const html = historico.slice().reverse().map(rel => `
             <tr>
                 <td><b>${rel.data}</b></td>
                 <td>${rel.total}</td>
@@ -135,15 +135,15 @@
     }
 
     function excluirSeguro(id) {
-        const p = prompt("ACESSO NEGADO. Digite a senha da Franciane para apagar este registro:");
+        const p = prompt("SENHA DE ADMINISTRAÇÃO REQUERIDA:");
         if(p === MASTER_PASS) {
             let historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
             historico = historico.filter(r => r.id !== id);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
             atualizarTabela();
-            alert("Registro removido com sucesso.");
+            alert("Removido.");
         } else {
-            alert("Senha incorreta. O registro permanece gravado.");
+            alert("Acesso Negado.");
         }
     }
 
