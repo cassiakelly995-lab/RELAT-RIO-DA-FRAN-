@@ -3,166 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Franciane Prompt V8 - Admin Mode</title>
+    <title>Franciane Prompt V8 - Database & Print</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --gold: #c5a028;
-            --navy: #050b1a;
-            --glass: rgba(255, 255, 255, 0.98);
-            --locked: #f2f2f2;
-        }
-
-        body {
-            margin: 0;
-            background: radial-gradient(circle, #0f172a 0%, #050b1a 100%);
-            font-family: 'Montserrat', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            color: #fff;
-        }
-
-        .container {
-            background: var(--glass);
-            border: 2px solid var(--gold);
-            border-radius: 15px;
-            padding: 45px;
-            width: 100%;
-            max-width: 600px;
-            color: var(--navy);
-            box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            position: relative;
-        }
-
-        .header { text-align: center; margin-bottom: 35px; border-bottom: 1px solid #eee; padding-bottom: 20px; }
-        .header h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin: 0; color: var(--navy); }
-        .header span { font-size: 0.7rem; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); font-weight: 700; }
-
-        .admin-badge {
-            position: absolute; top: 15px; right: 15px;
-            background: var(--navy); color: var(--gold);
-            padding: 5px 15px; border-radius: 20px; font-size: 10px; font-weight: 800;
-        }
-
-        label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 6px; color: #666; }
-
-        input, textarea {
-            width: 100%; padding: 14px; border: 1px solid #ddd; border-radius: 8px;
-            background: var(--locked); font-size: 14px; transition: 0.3s; box-sizing: border-box;
-            margin-bottom: 15px; color: #333;
-        }
-
-        .unlocked { background: #fff !important; border-color: var(--gold) !important; }
-
-        .btn-group { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
-
-        button {
-            padding: 16px; border-radius: 8px; font-weight: 700; cursor: pointer;
-            text-transform: uppercase; transition: 0.4s; border: none;
-        }
-
+        :root { --gold: #c5a028; --navy: #050b1a; --glass: #ffffff; }
+        body { margin: 0; background: radial-gradient(circle, #0f172a 0%, #050b1a 100%); font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; padding: 40px 20px; color: #fff; }
+        .container { background: var(--glass); border: 2px solid var(--gold); border-radius: 15px; padding: 35px; width: 100%; max-width: 700px; color: var(--navy); box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0; }
+        label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; color: #666; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; margin-bottom: 15px; font-size: 14px; box-sizing: border-box; }
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        button { padding: 15px; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; border: none; transition: 0.3s; font-size: 12px; }
         .btn-adm { background: #444; color: white; }
-        .btn-main { background: var(--navy); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .btn-main:hover { background: var(--gold); transform: scale(1.02); }
+        .btn-save { background: var(--navy); color: white; }
+        .btn-print { background: var(--gold); color: white; }
+        
+        /* Estilo da Tabela de Histórico */
+        .history { margin-top: 30px; border-top: 2px solid var(--gold); padding-top: 20px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { text-align: left; padding: 10px; background: #f2f2f2; }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        .actions { display: flex; gap: 5px; }
+        .btn-sm { padding: 5px 8px; font-size: 10px; border-radius: 4px; }
 
-        #output {
-            margin-top: 25px; padding: 20px; background: #fdfdfd; border: 1px dashed var(--gold);
-            border-radius: 8px; display: none; font-size: 14px; line-height: 1.6; animation: slideUp 0.4s ease;
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
+            .btn-group, .history, .admin-badge, .btn-sm { display: none !important; }
+            #output { display: block !important; border: none; padding: 0; }
         }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="admin-badge" id="status-lock">SISTEMA BLOQUEADO</div>
-    
     <div class="header">
         <h1>Franciane Prompt</h1>
-        <span>V8 GOD MODE • ELITE EDITION</span>
+        <span style="color: var(--gold); font-size: 10px; letter-spacing: 3px;">SISTEMA DE RELATÓRIOS GRAVADOS</span>
     </div>
 
-    <label>📅 Data do Relatório</label>
-    <input type="date" id="data" readonly>
-
-    <label>👥 Volume de Atendimentos</label>
-    <input type="number" id="total" placeholder="Aguardando ADM..." readonly>
-
-    <label>⚖️ Advogadas no Plantão</label>
-    <textarea id="doutoras" rows="2" placeholder="Aguardando ADM..." readonly></textarea>
-
-    <label>📝 Ocorrências e Observações</label>
-    <textarea id="obs" rows="4" placeholder="Aguardando ADM..." readonly></textarea>
+    <div id="form-area">
+        <label>📅 Data</label>
+        <input type="date" id="data">
+        <label>👥 Atendimentos</label>
+        <input type="number" id="total" placeholder="Qtd.">
+        <label>⚖️ Advogadas</label>
+        <textarea id="doutoras" rows="2"></textarea>
+        <label>📝 Observações</label>
+        <textarea id="obs" rows="3"></textarea>
+    </div>
 
     <div class="btn-group">
-        <button class="btn-adm" onclick="liberarSistema()">🔓 ADM</button>
-        <button class="btn-main" onclick="finalizar()">Gerar e Copiar Relatório</button>
+        <button class="btn-adm" onclick="limparTudo()">Limpar</button>
+        <button class="btn-save" onclick="salvarRelatorio()">Gravar no Sistema</button>
+        <button class="btn-print" onclick="window.print()">Imprimir Atual</button>
     </div>
 
-    <div id="output"></div>
+    <div id="output" style="display:none; white-space: pre-wrap; padding: 20px; background: #fff; border: 1px solid #eee; margin-top: 10px; font-size: 14px;"></div>
 
-    <p style="text-align: center; font-size: 9px; color: #aaa; margin-top: 20px; letter-spacing: 1px;">
-        OPERADOR EXCLUSIVO: FRANCIANE COSTA | AMBIENTE CRIPTOGRAFADO
-    </p>
+    <div class="history">
+        <label>📜 Relatórios Gravados</label>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Pessoas</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody id="lista-historico"></tbody>
+        </table>
+    </div>
 </div>
 
 <script>
-    const ADMIN_PASS = "fran88"; 
-    let isUnlocked = false;
+    const STORAGE_KEY = 'relatorios_franciane_v8';
 
-    function liberarSistema() {
-        const p = prompt("INSIRA A SENHA DE ADMINISTRADOR:");
-        if (p === ADMIN_PASS) {
-            isUnlocked = true;
-            document.getElementById('status-lock').innerText = "ACESSO LIBERADO";
-            document.getElementById('status-lock').style.background = "#c5a028";
-            document.getElementById('status-lock').style.color = "#050b1a";
-            
-            const campos = ['data', 'total', 'doutoras', 'obs'];
-            campos.forEach(id => {
-                const el = document.getElementById(id);
-                el.readOnly = false;
-                el.classList.add('unlocked');
-            });
-            alert("SISTEMA LIBERADO: Pode editar os campos agora.");
-        } else {
-            alert("ERRO: Senha inválida.");
+    function salvarRelatorio() {
+        const d = document.getElementById('data').value.split('-');
+        const rel = {
+            id: Date.now(),
+            data: `${d[2]}/${d[1]}/${d[0]}`,
+            total: document.getElementById('total').value,
+            drs: document.getElementById('doutoras').value,
+            obs: document.getElementById('obs').value,
+            data_original: document.getElementById('data').value
+        };
+
+        let historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        historico.push(rel);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
+        
+        atualizarTabela();
+        gerarTexto(rel);
+        alert("Relatório Gravado e Copiado!");
+    }
+
+    function gerarTexto(rel) {
+        const texto = `Relatório Diário – ${rel.data}\n\nNeste dia foram atendidas ${rel.total} pessoas.\n\n${rel.obs}\n\nOs atendimentos foram realizados pelas doutoras:\n\n${rel.drs}\n\nOs atendimentos de sistema e as nomeações foram realizados pela funcionária Franciane Costa.`;
+        document.getElementById('output').innerText = texto;
+        document.getElementById('output').style.display = 'block';
+        navigator.clipboard.writeText(texto);
+    }
+
+    function atualizarTabela() {
+        const historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const html = historico.map(rel => `
+            <tr>
+                <td>${rel.data}</td>
+                <td>${rel.total}</td>
+                <td class="actions">
+                    <button class="btn-sm btn-save" onclick="carregarRel(${rel.id})">Ver</button>
+                    <button class="btn-sm btn-adm" onclick="excluirRel(${rel.id})">Apagar</button>
+                </td>
+            </tr>
+        `).join('');
+        document.getElementById('lista-historico').innerHTML = html;
+    }
+
+    function carregarRel(id) {
+        const historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        const rel = historico.find(r => r.id === id);
+        document.getElementById('data').value = rel.data_original;
+        document.getElementById('total').value = rel.total;
+        document.getElementById('doutoras').value = rel.drs;
+        document.getElementById('obs').value = rel.obs;
+        gerarTexto(rel);
+    }
+
+    function excluirRel(id) {
+        if(confirm("Deseja apagar este registro permanentemente?")) {
+            let historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+            historico = historico.filter(r => r.id !== id);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
+            atualizarTabela();
         }
     }
 
-    function finalizar() {
-        if (!isUnlocked) {
-            alert("BLOQUEADO: Use o botão ADM primeiro.");
-            return;
-        }
-
-        const d = document.getElementById('data').value.split('-');
-        if(!d[0]) { alert("Defina a data."); return; }
-        
-        const dataFmt = `${d[2]}/${d[1]}/${d[0]}`;
-        const total = document.getElementById('total').value;
-        const drs = document.getElementById('doutoras').value;
-        const obs = document.getElementById('obs').value;
-
-        const texto = `Relatório Diário – ${dataFmt}\n\n` +
-                      `Neste dia foram atendidas ${total} pessoas.\n\n` +
-                      `${obs}\n\n` +
-                      `Os atendimentos foram realizados pelas doutoras:\n\n` +
-                      `${drs}\n\n` +
-                      `Os atendimentos de sistema e as nomeações foram realizados pela funcionária Franciane Costa.`;
-
-        const out = document.getElementById('output');
-        out.innerText = texto;
-        out.style.display = 'block';
-
-        navigator.clipboard.writeText(texto);
-        alert("💎 RELATÓRIO COPIADO COM SUCESSO!");
+    function limparTudo() {
+        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
+        document.getElementById('output').style.display = 'none';
     }
 
     document.getElementById('data').valueAsDate = new Date();
+    atualizarTabela();
 </script>
 
 </body>
