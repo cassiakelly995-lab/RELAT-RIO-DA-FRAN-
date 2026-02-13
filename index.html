@@ -3,64 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Relatório - Cássia Prompt V8</title>
+    <title>Cássia Prompt V8 - Elite Edition</title>
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: #1a73e8; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #e8f0fe; padding-bottom: 10px; }
-        .field { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; color: #444; }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        textarea { resize: vertical; }
-        button { background-color: #00a884; color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; margin-top: 10px; transition: 0.3s; }
-        button:hover { background-color: #008f72; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        #preview { margin-top: 20px; padding: 15px; background: #f9f9f9; border: 1px dashed #25d366; border-radius: 8px; white-space: pre-wrap; display: none; font-size: 14px; color: #333; }
-        .footer-info { text-align: center; font-size: 12px; color: #888; margin-top: 20px; }
+        :root {
+            --primary: #1a237e; /* Azul Marinho Elegante */
+            --accent: #00a884;  /* Verde WhatsApp */
+            --bg: #f8f9fa;
+        }
+        body { font-family: 'Inter', -apple-system, sans-serif; background-color: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 40px rgba(0,0,0,0.05); width: 100%; max-width: 550px; border-top: 8px solid var(--primary); }
+        h2 { color: var(--primary); text-align: center; font-weight: 700; letter-spacing: -1px; margin-bottom: 30px; }
+        .field { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 700; color: #555; text-transform: uppercase; margin-bottom: 8px; }
+        input, textarea { width: 100%; padding: 14px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; font-size: 15px; transition: 0.3s; background: #fafafa; }
+        input:focus, textarea:focus { border-color: var(--primary); background: #fff; outline: none; box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1); }
+        .btn-container { display: flex; gap: 10px; margin-top: 20px; }
+        button { flex: 1; padding: 16px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; border: none; font-size: 14px; text-transform: uppercase; }
+        .btn-gerar { background-color: var(--primary); color: white; }
+        .btn-gerar:hover { background-color: #0d125a; transform: translateY(-2px); }
+        .btn-limpar { background-color: #eee; color: #666; }
+        #preview { margin-top: 25px; padding: 20px; background: #f1f3f9; border-radius: 12px; border-left: 5px solid var(--accent); white-space: pre-wrap; display: none; font-size: 14px; color: #2c3e50; line-height: 1.6; }
+        .footer { text-align: center; font-size: 11px; color: #bbb; margin-top: 30px; font-weight: 600; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Relatório Diário</h2>
+    <h2>CÁSSIA PROMPT <span style="font-weight:300; color:#999;">V8</span></h2>
     
     <div class="field">
-        <label>Data do Atendimento:</label>
+        <label>Data</label>
         <input type="date" id="data">
     </div>
 
     <div class="field">
-        <label>Total de Pessoas:</label>
-        <input type="number" id="total" placeholder="Ex: 15">
+        <label>Volume de Atendimentos</label>
+        <input type="number" id="total" placeholder="Quantidade de pessoas">
     </div>
 
     <div class="field">
-        <label>Doutoras no Plantão (uma por linha):</label>
-        <textarea id="doutoras" rows="3" placeholder="Dra. Rita de Cássia..."></textarea>
+        <label>Advogadas de Plantão</label>
+        <textarea id="doutoras" rows="3" placeholder="Ex: Dra. Rita de Cássia Silvério..."></textarea>
     </div>
 
     <div class="field">
-        <label>Observações do Dia:</label>
-        <textarea id="obs" rows="4" placeholder="O plantão transcorreu de forma tranquila..."></textarea>
+        <label>Relato de Ocorrências</label>
+        <textarea id="obs" rows="4" placeholder="Descreva como transcorreu o plantão..."></textarea>
     </div>
 
-    <button onclick="gerar()">GERAR E COPIAR RELATÓRIO</button>
+    <div class="btn-container">
+        <button class="btn-limpar" onclick="limpar()">Limpar</button>
+        <button class="btn-gerar" onclick="validarEGerar()">Gerar Relatório</button>
+    </div>
 
     <div id="preview"></div>
     
-    <div class="footer-info">Cássia Prompt V8 God Mode - Sistema de Apoio</div>
+    <div class="footer">ELITE EDITION | ACESSO RESTRITO FRANCIANE FRANÇA</div>
 </div>
 
 <script>
-    function gerar() {
-        const dataVal = document.getElementById('data').value.split('-');
-        if(!dataVal[0]) { alert("Por favor, selecione a data."); return; }
+    // DEFINA A SENHA DA FRAN AQUI
+    const SENHA_MESTRA = "fran123"; 
+
+    function validarEGerar() {
+        const senha = prompt("Acesso Restrito. Digite a senha da Franciane:");
         
-        const dataFmt = `${dataVal[2]}/${dataVal[1]}/${dataVal[0]}`;
+        if (senha === SENHA_MESTRA) {
+            gerar();
+        } else {
+            alert("Senha incorreta. Apenas a Franciane pode modificar ou gerar relatórios.");
+        }
+    }
+
+    function gerar() {
+        const d = document.getElementById('data').value.split('-');
+        if(!d[0]) { alert("Selecione a data."); return; }
+        
+        const dataFmt = `${d[2]}/${d[1]}/${d[0]}`;
         const total = document.getElementById('total').value;
         const doutoras = document.getElementById('doutoras').value;
         const obs = document.getElementById('obs').value;
 
-        // Montagem do texto idêntica à imagem enviada
         const texto = `Relatório Diário – ${dataFmt}\n\n` +
                       `Neste dia foram atendidas ${total} pessoas.\n` +
                       `${obs}\n\n` +
@@ -72,13 +95,18 @@
         p.innerText = texto;
         p.style.display = 'block';
 
-        // Copia automática
         navigator.clipboard.writeText(texto).then(() => {
-            alert("✅ Relatório copiado com sucesso! Agora é só colar no WhatsApp.");
+            alert("✅ Autenticado! Relatório gerado e copiado para o WhatsApp.");
         });
     }
 
-    // Define a data de hoje automaticamente ao abrir
+    function limpar() {
+        if(confirm("Deseja apagar todos os campos?")) {
+            document.querySelectorAll('input, textarea').forEach(el => el.value = '');
+            document.getElementById('preview').style.display = 'none';
+        }
+    }
+
     document.getElementById('data').valueAsDate = new Date();
 </script>
 
