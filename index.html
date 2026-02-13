@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cássia Prompt V8 - Admin Mode</title>
+    <title>Franciane Prompt V8 - Admin Mode</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -54,7 +54,6 @@
             margin-bottom: 15px; color: #333;
         }
 
-        /* Quando liberado pelo ADM */
         .unlocked { background: #fff !important; border-color: var(--gold) !important; }
 
         .btn-group { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; }
@@ -82,7 +81,7 @@
     <div class="admin-badge" id="status-lock">SISTEMA BLOQUEADO</div>
     
     <div class="header">
-        <h1>Cássia Prompt</h1>
+        <h1>Franciane Prompt</h1>
         <span>V8 GOD MODE • ELITE EDITION</span>
     </div>
 
@@ -111,8 +110,7 @@
 </div>
 
 <script>
-    // Configuração de Segurança
-    const ADMIN_PASS = "fran88"; // Defina sua senha de ADM aqui
+    const ADMIN_PASS = "fran88"; 
     let isUnlocked = false;
 
     function liberarSistema() {
@@ -123,22 +121,21 @@
             document.getElementById('status-lock').style.background = "#c5a028";
             document.getElementById('status-lock').style.color = "#050b1a";
             
-            // Habilita os campos
             const campos = ['data', 'total', 'doutoras', 'obs'];
             campos.forEach(id => {
                 const el = document.getElementById(id);
                 el.readOnly = false;
                 el.classList.add('unlocked');
             });
-            alert("Cássia Prompt V8: Campos liberados para edição.");
+            alert("SISTEMA LIBERADO: Pode editar os campos agora.");
         } else {
-            alert("ERRO: Senha de administrador inválida.");
+            alert("ERRO: Senha inválida.");
         }
     }
 
     function finalizar() {
         if (!isUnlocked) {
-            alert("BLOQUEADO: Use o botão ADM para liberar a edição primeiro.");
+            alert("BLOQUEADO: Use o botão ADM primeiro.");
             return;
         }
 
@@ -162,7 +159,7 @@
         out.style.display = 'block';
 
         navigator.clipboard.writeText(texto);
-        alert("💎 RELATÓRIO ASSINADO POR FRANCIANE COSTA E COPIADO!");
+        alert("💎 RELATÓRIO COPIADO COM SUCESSO!");
     }
 
     document.getElementById('data').valueAsDate = new Date();
