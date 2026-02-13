@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel de Relatório Diário - Cássia Prompt</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; padding: 20px; }
+        .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h2 { color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px; text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: bold; margin-bottom: 5px; color: #34495e; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #27ae60; color: white; border: none; padding: 12px 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        button:hover { background-color: #219150; }
+        #output { margin-top: 20px; padding: 15px; background: #e8f6f3; border-left: 5px solid #27ae60; white-space: pre-wrap; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>📄 Relatório Diário de Atendimento</h2>
+    
+    <div class="form-group">
+        <label>Data:</label>
+        <input type="date" id="dataRelatorio">
+    </div>
+
+    <div class="form-group">
+        <label>Total de Pessoas Atendidas:</label>
+        <input type="number" id="totalAtendidos" placeholder="Ex: 15">
+    </div>
+
+    <div class="form-group">
+        <label>Advogadas no Plantão:</label>
+        <textarea id="advogadas" rows="3" placeholder="Dra. Nome Sobrenome..."></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Observações/Ocorrências:</label>
+        <textarea id="observacoes" rows="4" placeholder="Ex: O plantão transcorreu de forma organizada..."></textarea>
+    </div>
+
+    <button onclick="gerarRelatorio()">GERAR RELATÓRIO PARA WHATSAPP</button>
+
+    <div id="output"></div>
+</div>
+
+<script>
+    function gerarRelatorio() {
+        const dataRaw = document.getElementById('dataRelatorio').value.split('-');
+        const dataFormatada = dataRaw[2] + '/' + dataRaw[1] + '/' + dataRaw[0];
+        const total = document.getElementById('totalAtendidos').value;
+        const advs = document.getElementById('advogadas').value;
+        const obs = document.getElementById('observacoes').value;
+        const responsavel = "Franciane França";
+
+        const textoFinal = `*Relatório Diário – ${dataFormatada}*\n\n` +
+                           `Neste foram atendidas ${total} pessoas.\n\n` +
+                           `${obs}\n\n` +
+                           `Os atendimentos foram realizados pelas doutoras:\n\n` +
+                           `${advs}\n\n` +
+                           `Os atendimentos de sistema e as nomeações foram realizados pela funcionária ${responsavel}.`;
+
+        const outputDiv = document.getElementById('output');
+        outputDiv.innerText = textoFinal;
+        outputDiv.style.display = 'block';
+        
+        // Copia automaticamente para a área de transferência
+        navigator.clipboard.writeText(textoFinal);
+        alert("Relatório gerado e copiado para a área de transferência!");
+    }
+</script>
+
+</body>
+</html>
