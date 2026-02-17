@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Franciane Prompt V8 - Security Admin</title>
+    <title>Franciane Prompt V8 - Cloud Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
         :root { --gold: #c5a028; --navy: #050b1a; --glass: #ffffff; }
         body { margin: 0; background: radial-gradient(circle, #0f172a 0%, #050b1a 100%); font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; padding: 40px 20px; color: #fff; }
-        .container { background: var(--glass); border: 2px solid var(--gold); border-radius: 15px; padding: 35px; width: 100%; max-width: 700px; color: var(--navy); box-shadow: 0 0 50px rgba(0,0,0,0.8); }
+        .container { background: var(--glass); border: 2px solid var(--gold); border-radius: 15px; padding: 35px; width: 100%; max-width: 700px; color: var(--navy); box-shadow: 0 0 50px rgba(0,0,0,0.8); position: relative; }
         .header { text-align: center; margin-bottom: 30px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .header h1 { font-family: 'Playfair Display', serif; font-size: 2rem; margin: 0; }
         label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; color: #666; }
@@ -18,19 +20,13 @@
         .btn-save { background: var(--navy); color: white; }
         .btn-print { background: var(--gold); color: white; }
         .btn-danger { background: #cc0000; color: white; }
-        
         .history { margin-top: 30px; border-top: 2px solid var(--gold); padding-top: 20px; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th { text-align: left; padding: 10px; background: #f2f2f2; }
         td { padding: 10px; border-bottom: 1px solid #eee; }
         .btn-sm { padding: 5px 8px; font-size: 10px; border-radius: 4px; margin-right: 3px; }
-
-        @media print {
-            body { background: white; padding: 0; }
-            .container { box-shadow: none; border: none; width: 100%; max-width: 100%; }
-            .btn-group, .history, .btn-sm { display: none !important; }
-            #output { display: block !important; border: none; padding: 0; font-size: 16px; color: black; }
-        }
+        #output { display:none; white-space: pre-wrap; padding: 20px; background: #fdfdfd; border: 1px solid #eee; margin-bottom: 20px; font-size: 14px; color: #333; border-left: 5px solid var(--gold); }
+        @media print { .btn-group, .history, .btn-sm, #form-area, .header, label { display: none !important; } #output { display: block !important; border: none; color: black; } }
     </style>
 </head>
 <body>
@@ -38,50 +34,57 @@
 <div class="container">
     <div class="header">
         <h1>Franciane Prompt</h1>
-        <span style="color: var(--gold); font-size: 10px; letter-spacing: 3px;">SISTEMA PROTEGIDO - ADM PASSWORD REQUIRED</span>
+        <span style="color: var(--gold); font-size: 10px; letter-spacing: 3px;">DATABASE CLOUD ATIVO (FIREBASE)</span>
     </div>
 
     <div id="form-area">
-        <label>📅 Data</label>
+        <label>📅 Data do Plantão</label>
         <input type="date" id="data">
-        <label>👥 Atendimentos</label>
+        <label>👥 Volume de Atendimentos</label>
         <input type="number" id="total">
-        <label>⚖️ Advogadas</label>
-        <textarea id="doutoras" rows="2"></textarea>
-        <label>📝 Observações</label>
+        <label>⚖️ Advogadas presentes</label>
+        <textarea id="doutoras" rows="2" placeholder="Dra. Rita de Cássia, Dra. Regina..."></textarea>
+        <label>📝 Observações do Dia</label>
         <textarea id="obs" rows="3"></textarea>
     </div>
 
     <div class="btn-group">
-        <button class="btn-save" onclick="salvarRelatorio()">💾 Gravar e Copiar</button>
+        <button class="btn-save" onclick="salvarCloud()">☁️ Gravar na Nuvem</button>
         <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
         <button style="background:#eee; color:#666;" onclick="limparCampos()">✨ Limpar Tela</button>
     </div>
 
-    <div id="output" style="display:none; white-space: pre-wrap; padding: 20px; background: #fdfdfd; border: 1px solid #eee; margin-bottom: 20px; font-size: 14px; color: #333; border-left: 5px solid var(--gold);"></div>
+    <div id="output"></div>
 
     <div class="history">
-        <label>📜 Histórico Gravado</label>
+        <label>📜 Histórico Inviolável</label>
         <table>
-            <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Pessoas</th>
-                    <th>Ações de Admin</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Data</th><th>Pessoas</th><th>Ações</th></tr></thead>
             <tbody id="lista-historico"></tbody>
         </table>
     </div>
 </div>
 
 <script>
-    const STORAGE_KEY = 'v8_permanent_records';
-    const MASTER_PASS = "fran88"; // SENHA DE ADM MANTIDA
+    // Configuração oficial Franciane Costa
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVCuRVW_Gpo7EgKNBVT68GBE7I1NrMDUE",
+      authDomain: "painelfranv8.firebaseapp.com",
+      databaseURL: "https://painelfranv8-default-rtdb.firebaseio.com",
+      projectId: "painelfranv8",
+      storageBucket: "painelfranv8.firebasestorage.app",
+      messagingSenderId: "153444789695",
+      appId: "1:153444789695:web:d54290c1899292d938450a",
+      measurementId: "G-MN5BR0ZB5Z"
+    };
 
-    function salvarRelatorio() {
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const MASTER_PASS = "fran88";
+
+    function salvarCloud() {
         const d = document.getElementById('data').value.split('-');
-        if(!d[0]) return alert("Data obrigatória.");
+        if(!d[0]) return alert("Selecione a data.");
 
         const rel = {
             id: Date.now(),
@@ -92,13 +95,50 @@
             data_original: document.getElementById('data').value
         };
 
-        let historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        historico.push(rel);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
-        
-        atualizarTabela();
-        exibirTexto(rel);
-        alert("✅ Gravado! Use o WhatsApp para colar.");
+        db.ref('relatorios/' + rel.id).set(rel).then(() => {
+            alert("☁️ Gravado com sucesso na nuvem!");
+            exibirTexto(rel);
+        });
+    }
+
+    function carregarHistorico() {
+        db.ref('relatorios').on('value', (snapshot) => {
+            const data = snapshot.val();
+            const list = [];
+            for (let id in data) list.push(data[id]);
+            
+            const html = list.reverse().map(rel => `
+                <tr>
+                    <td><b>${rel.data}</b></td>
+                    <td>${rel.total}</td>
+                    <td>
+                        <button class="btn-sm btn-save" onclick="recuperarRel(${rel.id})">Ver</button>
+                        <button class="btn-sm btn-danger" onclick="excluirCloud(${rel.id})">Apagar</button>
+                    </td>
+                </tr>
+            `).join('');
+            document.getElementById('lista-historico').innerHTML = html;
+        });
+    }
+
+    function recuperarRel(id) {
+        db.ref('relatorios/' + id).once('value').then((snapshot) => {
+            const rel = snapshot.val();
+            document.getElementById('data').value = rel.data_original;
+            document.getElementById('total').value = rel.total;
+            document.getElementById('doutoras').value = rel.drs;
+            document.getElementById('obs').value = rel.obs;
+            exibirTexto(rel);
+        });
+    }
+
+    function excluirCloud(id) {
+        if(prompt("DIGITE A SENHA DE ADMIN PARA APAGAR:") === MASTER_PASS) {
+            db.ref('relatorios/' + id).remove();
+            alert("Registro removido.");
+        } else {
+            alert("Acesso negado.");
+        }
     }
 
     function exibirTexto(rel) {
@@ -109,52 +149,14 @@
         navigator.clipboard.writeText(texto);
     }
 
-    function atualizarTabela() {
-        const historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        const html = historico.slice().reverse().map(rel => `
-            <tr>
-                <td><b>${rel.data}</b></td>
-                <td>${rel.total}</td>
-                <td>
-                    <button class="btn-sm btn-save" onclick="carregarRel(${rel.id})">Ver</button>
-                    <button class="btn-sm btn-danger" onclick="excluirSeguro(${rel.id})">Apagar</button>
-                </td>
-            </tr>
-        `).join('');
-        document.getElementById('lista-historico').innerHTML = html;
-    }
-
-    function carregarRel(id) {
-        const historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-        const rel = historico.find(r => r.id === id);
-        document.getElementById('data').value = rel.data_original;
-        document.getElementById('total').value = rel.total;
-        document.getElementById('doutoras').value = rel.drs;
-        document.getElementById('obs').value = rel.obs;
-        exibirTexto(rel);
-    }
-
-    function excluirSeguro(id) {
-        const p = prompt("SENHA DE ADMINISTRAÇÃO REQUERIDA:");
-        if(p === MASTER_PASS) {
-            let historico = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-            historico = historico.filter(r => r.id !== id);
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(historico));
-            atualizarTabela();
-            alert("Removido.");
-        } else {
-            alert("Acesso Negado.");
-        }
-    }
-
     function limparCampos() {
         document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-        document.getElementById('output').style.display = 'none';
         document.getElementById('data').valueAsDate = new Date();
+        document.getElementById('output').style.display = 'none';
     }
 
     document.getElementById('data').valueAsDate = new Date();
-    atualizarTabela();
+    carregarHistorico();
 </script>
 
 </body>
