@@ -3,189 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Franciane Prompt V8 - Elite Mensal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <title>Relatório Franciane V8</title>
     <style>
-        :root { --gold: #c5a028; --navy: #050b1a; --glass: #ffffff; }
-        body { margin: 0; background: radial-gradient(circle, #0f172a 0%, #050b1a 100%); font-family: 'Montserrat', sans-serif; display: flex; justify-content: center; padding: 20px; color: #fff; }
-        .container { background: var(--glass); border: 2px solid var(--gold); border-radius: 15px; padding: 30px; width: 100%; max-width: 800px; color: var(--navy); box-shadow: 0 0 50px rgba(0,0,0,0.8); }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .header h1 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 0; }
-        label { display: block; font-size: 10px; font-weight: 800; text-transform: uppercase; margin-bottom: 5px; color: #666; }
-        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: #f9f9f9; margin-bottom: 12px; font-size: 14px; box-sizing: border-box; }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
-        button { padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; text-transform: uppercase; border: none; transition: 0.3s; font-size: 10px; }
-        .btn-save { background: var(--navy); color: white; }
-        .btn-report { background: #1a5c1a; color: white; }
-        .btn-print { background: var(--gold); color: white; }
-        .btn-danger { background: #cc0000; color: white; }
-        .history { margin-top: 20px; border-top: 2px solid var(--gold); padding-top: 15px; }
-        table { width: 100%; border-collapse: collapse; font-size: 11px; }
-        th { text-align: left; padding: 8px; background: #f2f2f2; }
-        td { padding: 8px; border-bottom: 1px solid #eee; }
-        #output { display:none; white-space: pre-wrap; padding: 20px; background: #fdfdfd; border: 1px solid #eee; margin-bottom: 20px; font-size: 14px; color: #333; border-left: 5px solid var(--gold); }
-        @media print { .btn-group, .history, #form-area, .header, label { display: none !important; } #output { display: block !important; border: none; color: black; } }
+        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f0f2f5; color: #333; padding: 20px; }
+        .main-card { background: #ffffff; max-width: 800px; margin: 40px auto; padding: 40px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border-left: 8px solid #27ae60; }
+        h2 { color: #27ae60; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .input-group { margin: 20px 0; }
+        textarea { width: 100%; height: 120px; padding: 15px; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .btn-fran { background: #27ae60; color: white; padding: 15px 30px; border: none; border-radius: 10px; cursor: pointer; font-size: 16px; width: 100%; font-weight: 600; }
+        .btn-fran:hover { background: #219150; }
+        footer { margin-top: 40px; font-size: 11px; color: #999; text-align: center; padding-top: 20px; border-top: 1px solid #eee; }
     </style>
 </head>
 <body>
-
-<div class="container">
-    <div class="header">
-        <h1>Franciane Prompt</h1>
-        <span style="color: var(--gold); font-size: 9px; letter-spacing: 2px;">GESTÃO DIÁRIA E MENSAL</span>
-    </div>
-
-    <div id="form-area">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <div>
-                <label>📅 Data</label>
-                <input type="date" id="data">
-            </div>
-            <div>
-                <label>👥 Atendimentos</label>
-                <input type="number" id="total" placeholder="0">
-            </div>
-        </div>
-        <label>⚖️ Advogadas</label>
-        <textarea id="doutoras" rows="2" placeholder="Dra. Fulana..."></textarea>
-        <label>📝 Observações</label>
-        <textarea id="obs" rows="2" placeholder="Ocorrências..."></textarea>
-    </div>
-
-    <div class="btn-group">
-        <button class="btn-save" onclick="salvarCloud()">💾 Gravar Dia</button>
-        <button class="btn-report" onclick="gerarMensal()">📊 Relatório Mensal</button>
-        <button class="btn-print" onclick="window.print()">🖨️ Imprimir</button>
-        <button style="background:#eee; color:#666;" onclick="limparCampos()">✨ Limpar</button>
-    </div>
-
-    <div id="output"></div>
-
-    <div class="history">
-        <label>📜 Últimos Registros na Nuvem</label>
-        <table>
-            <thead><tr><th>Data</th><th>Pessoas</th><th>Ações</th></tr></thead>
-            <tbody id="lista-historico"></tbody>
-        </table>
-    </div>
-</div>
-
-<script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBVCuRVW_Gpo7EgKNBVT68GBE7I1NrMDUE",
-      authDomain: "painelfranv8.firebaseapp.com",
-      databaseURL: "https://painelfranv8-default-rtdb.firebaseio.com",
-      projectId: "painelfranv8",
-      storageBucket: "painelfranv8.firebasestorage.app",
-      messagingSenderId: "153444789695",
-      appId: "1:153444789695:web:d54290c1899292d938450a"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const MASTER_PASS = "fran88";
-    let todosDados = [];
-
-    function salvarCloud() {
-        const valData = document.getElementById('data').value;
-        if(!valData) return alert("Selecione a data.");
-        const d = valData.split('-');
-
-        const rel = {
-            id: Date.now(),
-            data: `${d[2]}/${d[1]}/${d[0]}`,
-            mes_ano: `${d[1]}/${d[0]}`,
-            total: parseInt(document.getElementById('total').value) || 0,
-            drs: document.getElementById('doutoras').value,
-            obs: document.getElementById('obs').value,
-            data_original: valData
-        };
-
-        db.ref('relatorios/' + rel.id).set(rel).then(() => {
-            alert("✅ Gravado na Nuvem!");
-            exibirTexto(rel);
-        });
-    }
-
-    function carregarHistorico() {
-        db.ref('relatorios').on('value', (snapshot) => {
-            const data = snapshot.val();
-            todosDados = [];
-            for (let id in data) todosDados.push(data[id]);
-            
-            const html = todosDados.slice().reverse().slice(0, 10).map(rel => `
-                <tr>
-                    <td><b>${rel.data}</b></td>
-                    <td>${rel.total}</td>
-                    <td>
-                        <button class="btn-sm btn-save" onclick="recuperarRel(${rel.id})">Ver</button>
-                        <button class="btn-sm btn-danger" onclick="excluirCloud(${rel.id})">X</button>
-                    </td>
-                </tr>
-            `).join('');
-            document.getElementById('lista-historico').innerHTML = html;
-        });
-    }
-
-    function gerarMensal() {
-        const inputData = document.getElementById('data').value;
-        if(!inputData) return alert("Selecione uma data do mês que deseja o relatório.");
-        const mesAnoAlvo = `${inputData.split('-')[1]}/${inputData.split('-')[0]}`;
+    <div class="main-card">
+        <h2>Sistema de Relatórios V8</h2>
+        <p>Assistente da Franciane - Geração de Relatórios Detalhados</p>
         
-        const filtrados = todosDados.filter(r => r.mes_ano === mesAnoAlvo);
-        if(filtrados.length === 0) return alert("Nenhum dado encontrado para este mês.");
+        <div class="input-group">
+            <textarea id="dadosRelatorio" placeholder="Insira os dados brutos para estruturação do relatório..."></textarea>
+        </div>
+        
+        <button class="btn-fran" onclick="processarRelatorio()">GERAR RELATÓRIO V8</button>
+        
+        <footer>
+            PROJETO: RELATÓRIO FRANCIANE V8<br>
+            <strong>AVISO:</strong> A responsabilidade pelo uso desta ferramenta é inteiramente do usuário. <br>
+            O programa apenas gera o prompt através de IA.
+        </footer>
+    </div>
 
-        let somaTotal = 0;
-        let resumoObs = "";
-        filtrados.forEach(r => {
-            somaTotal += r.total;
-            if(r.obs) resumoObs += `• Dia ${r.data}: ${r.obs}\n`;
-        });
+    <script>
+        const FRAN_KEY = "AIzaSyBVCuRVW_Gpo7EgKNBVT68GBE7I1NrMDUE";
 
-        const texto = `RELATÓRIO MENSAL DE ATENDIMENTOS - ${mesAnoAlvo}\n\n` +
-                      `Total de pessoas atendidas no mês: ${somaTotal}\n\n` +
-                      `RESUMO DE OCORRÊNCIAS:\n${resumoObs || "Nenhuma ocorrência registrada."}\n\n` +
-                      `Responsável técnica pelo sistema: Franciane Costa.`;
-
-        const out = document.getElementById('output');
-        out.innerText = texto;
-        out.style.display = 'block';
-        navigator.clipboard.writeText(texto);
-        alert("📊 Relatório Mensal Gerado e Copiado!");
-    }
-
-    function recuperarRel(id) {
-        const rel = todosDados.find(r => r.id === id);
-        document.getElementById('data').value = rel.data_original;
-        document.getElementById('total').value = rel.total;
-        document.getElementById('doutoras').value = rel.drs;
-        document.getElementById('obs').value = rel.obs;
-        exibirTexto(rel);
-    }
-
-    function excluirCloud(id) {
-        if(prompt("SENHA ADM:") === MASTER_PASS) db.ref('relatorios/' + id).remove();
-    }
-
-    function exibirTexto(rel) {
-        const texto = `Relatório Diário – ${rel.data}\n\nNeste dia foram atendidas ${rel.total} pessoas.\n\n${rel.obs}\n\nOs atendimentos de sistema e as nomeações foram realizados pela funcionária Franciane Costa.`;
-        const out = document.getElementById('output');
-        out.innerText = texto;
-        out.style.display = 'block';
-        navigator.clipboard.writeText(texto);
-    }
-
-    function limparCampos() {
-        document.querySelectorAll('input, textarea').forEach(i => i.value = '');
-        document.getElementById('data').valueAsDate = new Date();
-        document.getElementById('output').style.display = 'none';
-    }
-
-    document.getElementById('data').valueAsDate = new Date();
-    carregarHistorico();
-</script>
-
+        function processarRelatorio() {
+            const dados = document.getElementById('dadosRelatorio').value;
+            if(!dados) { alert("Insira os dados primeiro."); return; }
+            alert("Gerando Relatório Franciane V8... (Conexão Segura)");
+        }
+    </script>
 </body>
 </html>
